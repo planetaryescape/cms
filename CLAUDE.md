@@ -213,6 +213,31 @@ Copy `.env.example` to `.env` and configure:
 - Server env vars are accessed normally via `process.env`
 - Both are tracked in turbo.json for cache invalidation
 
+## CI/CD
+
+### GitHub Actions
+
+The project uses GitHub Actions for continuous integration with the following quality gates:
+
+**Workflow**: `.github/workflows/ci.yml`
+
+**Quality Checks:**
+- Linting (Biome)
+- Type checking (TypeScript)
+- Build verification
+- Test execution
+
+**Environment:**
+- Runs on: Ubuntu latest
+- Runtime: Bun (latest)
+- Database: PostgreSQL 18 (service container)
+- Triggers: Push to main, Pull requests to main
+
+**Database Setup:**
+- PostgreSQL service container runs during CI
+- Test database: `bhvr_test`
+- Automatically health-checked before running tests
+
 ## Deployment
 
 ### Single Origin Deployment (Recommended)

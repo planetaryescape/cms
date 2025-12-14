@@ -77,7 +77,9 @@ function DashboardPage() {
 						</div>
 
 						<div>
-							<h2 className="text-xl font-semibold mb-4">Session Information</h2>
+							<h2 className="text-xl font-semibold mb-4">
+								Session Information
+							</h2>
 							<div className="bg-gray-50 p-4 rounded-md space-y-2">
 								<div>
 									<span className="font-medium">Session ID:</span>{" "}
