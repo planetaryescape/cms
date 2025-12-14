@@ -21,12 +21,6 @@
 		// Module resolution
 		"moduleResolution": "bundler",
 		"allowImportingTsExtensions": false,
-
-		// Workspace paths
-		"paths": {
-			"shared": ["../shared/src"],
-			"shared/*": ["../shared/src/*"]
-		}
 	},
 	"include": ["src/**/*"],
 	"exclude": ["node_modules", "dist"]
