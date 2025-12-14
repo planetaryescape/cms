@@ -46,9 +46,11 @@ Client also uses `@/` → `./client/src/` for local imports (configured in vite.
 - **Framework**: Hono with CORS middleware
 - **Runtime**: Bun (not Node.js)
 - **Database**: PostgreSQL with Kysely query builder
+- **Authentication**: Better Auth with email/password
 - **Export Pattern**: Exports both `app` and `default` from index.ts
 - **Single Origin Setup**:
   - API routes are prefixed with `/api` (e.g., `/api/hello`)
+  - Better Auth routes are at `/api/auth/*`
   - Uses `serveStatic` from `hono/bun` to serve React build files from `./static`
   - Catchall route serves `index.html` for client-side routing
   - Runs on port 3000 in production serving both API and frontend
@@ -60,6 +62,24 @@ Client also uses `@/` → `./client/src/` for local imports (configured in vite.
 - **Connection**: Configured via `DATABASE_URL` environment variable
 - **Location**: Database module at `server/src/db/index.ts`
 - **Health Check**: `/api/db-health` endpoint for testing connection
+
+### Authentication Setup (Better Auth)
+
+- **Library**: Better Auth v1.4.7
+- **Configuration**: `server/src/lib/auth.ts`
+- **Authentication Methods**: Email/password (enabled by default)
+- **Database**: Uses the same PostgreSQL database via Pool connection
+- **API Routes**: All auth endpoints are available at `/api/auth/*`
+- **Client Library**: `client/src/lib/auth-client.ts` (React hooks and methods)
+- **Environment Variables**:
+  - `BETTER_AUTH_SECRET`: Secret key for encryption (min 32 chars)
+  - `BETTER_AUTH_URL`: Base URL of the application
+- **Trusted Origins**: Configured to accept requests from localhost ports 5173-5175 and 3000 for development
+
+**Schema Management:**
+- Use `bunx @better-auth/cli migrate --config server/src/lib/auth.ts` to create/update auth tables
+- Use `bunx @better-auth/cli generate --config server/src/lib/auth.ts` to create migration SQL files
+- Auth tables: `user`, `session`, `account`, `verification`
 
 ### Development vs Production
 
@@ -155,6 +175,12 @@ When making API calls:
 - The `/api` base path works in both development (via Vite proxy) and production (single origin)
 - All API endpoints are accessed via the RPC client methods (e.g., `client.hello.$get()`)
 
+When using Better Auth:
+- Import from `@/lib/auth-client`: `import { signIn, signUp, signOut, useSession } from "@/lib/auth-client"`
+- Use `useSession()` hook to get current user session
+- Call `signIn.email()`, `signUp.email()`, `signOut()` for authentication actions
+- All auth requests automatically go to `/api/auth/*` endpoints
+
 ### Shared Package Updates
 
 After modifying shared/src/types:
@@ -180,7 +206,9 @@ Copy `.env.example` to `.env` and configure:
 
 - `PORT`: Server port (default: 3000)
 - `NODE_ENV`: Environment (development/production)
-- `DATABASE_URL`: PostgreSQL connection string (default: `postgresql://postgres:postgres@localhost:5432/bhvr`)
+- `DATABASE_URL`: PostgreSQL connection string (default: `postgresql://postgres:postgres@localhost:2345/bhvr`)
+- `BETTER_AUTH_SECRET`: Secret key for Better Auth encryption (generate with `openssl rand -base64 32`)
+- `BETTER_AUTH_URL`: Base URL of the application (e.g., `http://localhost:3000`)
 - Client env vars must be prefixed with `VITE_` to be accessible via `import.meta.env`
 - Server env vars are accessed normally via `process.env`
 - Both are tracked in turbo.json for cache invalidation
