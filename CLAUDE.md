@@ -45,12 +45,21 @@ Client also uses `@/` → `./client/src/` for local imports (configured in vite.
 
 - **Framework**: Hono with CORS middleware
 - **Runtime**: Bun (not Node.js)
+- **Database**: PostgreSQL with Kysely query builder
 - **Export Pattern**: Exports both `app` and `default` from index.ts
 - **Single Origin Setup**:
   - API routes are prefixed with `/api` (e.g., `/api/hello`)
   - Uses `serveStatic` from `hono/bun` to serve React build files from `./static`
   - Catchall route serves `index.html` for client-side routing
   - Runs on port 3000 in production serving both API and frontend
+
+### Database Setup
+
+- **Query Builder**: Kysely (type-safe SQL query builder)
+- **Driver**: node-postgres (pg)
+- **Connection**: Configured via `DATABASE_URL` environment variable
+- **Location**: Database module at `server/src/db/index.ts`
+- **Health Check**: `/api/db-health` endpoint for testing connection
 
 ### Development vs Production
 
@@ -71,6 +80,9 @@ Client also uses `@/` → `./client/src/` for local imports (configured in vite.
 ```bash
 # Install dependencies (runs postinstall to build shared & server)
 bun install
+
+# Start PostgreSQL database (required for development)
+docker-compose up postgres -d
 
 # Run all workspaces in dev mode
 bun run dev
@@ -149,8 +161,26 @@ After modifying shared/src/types:
 1. Rebuild shared: `bun run build --filter=shared`
 2. Or rely on `bun run dev` which runs tsc --watch
 
+### Database Development
+
+Working with Kysely:
+1. Import db from `./db`: `import { db } from "./db"`
+2. Use Kysely's type-safe query builder for all database operations
+3. Define table interfaces in `server/src/db/index.ts` Database interface
+4. Example query: `await db.selectFrom('users').selectAll().execute()`
+5. Test connection: Visit `/api/db-health` endpoint
+
+Database migrations:
+- Consider using `kysely-ctl` or write custom migration scripts
+- Store migrations in `server/src/db/migrations/` (to be created as needed)
+
 ## Environment Variables
 
+Copy `.env.example` to `.env` and configure:
+
+- `PORT`: Server port (default: 3000)
+- `NODE_ENV`: Environment (development/production)
+- `DATABASE_URL`: PostgreSQL connection string (default: `postgresql://postgres:postgres@localhost:5432/bhvr`)
 - Client env vars must be prefixed with `VITE_` to be accessible via `import.meta.env`
 - Server env vars are accessed normally via `process.env`
 - Both are tracked in turbo.json for cache invalidation
@@ -162,13 +192,17 @@ After modifying shared/src/types:
 This project is configured for single origin deployment using Docker:
 
 ```bash
-# Build and run with Docker Compose
+# Build and run with Docker Compose (includes PostgreSQL)
 docker-compose up -d
 
-# Or build and run manually
+# Or build and run manually (requires separate PostgreSQL instance)
 docker build -t bhvr-app .
-docker run -p 3000:3000 bhvr-app
+docker run -p 3000:3000 -e DATABASE_URL=your_db_url bhvr-app
 ```
+
+The Docker Compose setup includes:
+- **PostgreSQL**: PostgreSQL 18 on port 5432 with persistent volume
+- **App**: Bun server with automatic dependency on healthy PostgreSQL
 
 The Dockerfile:
 - Uses `oven/bun:latest` as base image
@@ -176,6 +210,8 @@ The Dockerfile:
 - Runs `bun run build:single` to build and prepare static files
 - Exposes port 3000
 - Starts the server with `bun run start:single`
+
+Test the database connection: `curl http://localhost:3000/api/db-health`
 
 ### Alternative Deployment Options
 

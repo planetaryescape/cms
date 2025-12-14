@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { serveStatic } from "hono/bun";
 import type { ApiResponse } from "shared/dist/types";
+import { testConnection } from "./db";
 
 // API routes only (for RPC client type inference)
 export const apiRoutes = new Hono()
@@ -16,6 +17,10 @@ export const apiRoutes = new Hono()
 		};
 
 		return c.json(data, { status: 200 });
+	})
+	.get("/db-health", async (c) => {
+		const result = await testConnection();
+		return c.json(result, { status: result.success ? 200 : 500 });
 	});
 
 // Full app with static serving
