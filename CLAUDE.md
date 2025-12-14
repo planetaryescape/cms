@@ -158,9 +158,13 @@ When adding new Hono routes:
 1. Define types in `shared/src/types/index.ts`
 2. Export them in `shared/src/index.ts`
 3. Build shared package (or let dev mode rebuild)
-4. Import types in server: `import type { YourType } from 'shared/dist'`
+4. Import types in server: `import type { YourType } from 'shared'` (NOT `shared/dist`)
 5. **IMPORTANT**: All API routes MUST be prefixed with `/api` (e.g., `.get("/api/users")`)
 6. Use in route handlers with proper TypeScript typing
+
+**Import Pattern:**
+- ✅ Correct: `import type { ApiResponse } from 'shared'`
+- ❌ Wrong: `import type { ApiResponse } from 'shared/dist'` or `'shared/dist/types'`
 
 ### Client Development
 
