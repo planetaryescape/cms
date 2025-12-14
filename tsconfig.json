@@ -1,40 +1,52 @@
 {
-  "compilerOptions": {
-    // Environment setup & latest features
-    "lib": ["ESNext", "DOM", "DOM.Iterable"],
-    "target": "ESNext",
-    "module": "ESNext",
-    "moduleDetection": "force",
-    "jsx": "react-jsx",
-    "allowJs": true,
+	"compilerOptions": {
+		// Environment setup & latest features
+		"lib": ["ESNext", "DOM", "DOM.Iterable"],
+		"target": "ES2022",
+		"module": "ESNext",
+		"moduleDetection": "force",
+		"jsx": "react-jsx",
+		"allowJs": true,
 
-    // Path resolution
-    "baseUrl": "./",
-    "paths": {
-      "@server/*": ["./server/src/*"],
-      "@client/*": ["./client/src/*"],
-      "@shared/*": ["./shared/src/*"]
-    },
+		// Path resolution
+		"baseUrl": "./",
+		"paths": {
+			"@server/*": ["./server/src/*"],
+			"@client/*": ["./client/src/*"],
+			"@shared/*": ["./shared/src/*"]
+		},
 
-    // Module resolution
-    "moduleResolution": "bundler",
-    "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
-    "verbatimModuleSyntax": true,
+		// Module resolution
+		"moduleResolution": "bundler",
+		"allowSyntheticDefaultImports": true,
+		"esModuleInterop": true,
+		"verbatimModuleSyntax": true,
+		"rewriteRelativeImportExtensions": true,
 
-    // Strictness and best practices
-    "strict": true,
-    "forceConsistentCasingInFileNames": true,
-    "noFallthroughCasesInSwitch": true,
-    "noUncheckedIndexedAccess": true,
-    "experimentalDecorators": true,
+		// Strictness and best practices
+		"strict": true,
+		"exactOptionalPropertyTypes": true,
+		"forceConsistentCasingInFileNames": true,
+		"noFallthroughCasesInSwitch": true,
+		"noUncheckedIndexedAccess": true,
+		"noImplicitOverride": true,
+		"experimentalDecorators": true,
 
-    // Output control
-    "skipLibCheck": true,
+		// Output control
+		"skipLibCheck": true,
+		"incremental": true,
+		"composite": true,
 
-    // Optional strict flags (disabled by default)
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
-    "noPropertyAccessFromIndexSignature": false
-  }
+		// Effect Language Service
+		"plugins": [
+			{
+				"name": "@effect/language-service"
+			}
+		],
+
+		// Optional strict flags (disabled by default)
+		"noUnusedLocals": false,
+		"noUnusedParameters": false,
+		"noPropertyAccessFromIndexSignature": false
+	}
 }

@@ -188,3 +188,14 @@ The Dockerfile:
 - `PORT`: Server port (default: 3000)
 - `NODE_ENV`: Set to `production` for production builds
 - Client env vars must be prefixed with `VITE_` and set at build time
+
+<!-- effect-solutions:start -->
+## Effect Best Practices
+
+**Before implementing Effect features**, run `effect-solutions list` and read the relevant guide.
+
+Topics include: services and layers, data modeling, error handling, configuration, testing, HTTP clients, CLIs, observability, and project structure.
+
+**Effect Source Reference:** `~/.local/share/effect-solutions/effect`
+Search here for real implementations when docs aren't enough.
+<!-- effect-solutions:end -->
