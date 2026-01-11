@@ -1,6 +1,6 @@
 import { Hono } from "hono";
-import { cors } from "hono/cors";
 import { serveStatic } from "hono/bun";
+import { cors } from "hono/cors";
 import type { ApiResponse } from "shared";
 import { testConnection } from "./db";
 import { auth } from "./lib/auth";

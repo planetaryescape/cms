@@ -3,10 +3,6 @@ import { Schema as S } from "@effect/schema";
 import type { ParseError } from "@effect/schema/ParseResult";
 import { type Effect, pipe } from "effect";
 
-// =====================================================
-// BRANDED TYPES (Type-safe IDs)
-// =====================================================
-
 export const UserId = pipe(S.UUID, S.brand("UserId"));
 export type UserId = S.Schema.Type<typeof UserId>;
 
@@ -731,3 +727,7 @@ export const encodeOrThrow =
 	(value: A): Effect.Effect<I, ParseError> => {
 		return S.encode(schema)(value);
 	};
+
+export * from "./enums";
+export * from "./auth";
+export * from "./database";

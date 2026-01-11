@@ -1,5 +1,6 @@
 import { betterAuth } from "better-auth";
 import { Pool } from "pg";
+import { additionalUserFields } from "shared";
 
 export const auth = betterAuth({
 	database: new Pool({
@@ -9,6 +10,9 @@ export const auth = betterAuth({
 	}),
 	emailAndPassword: {
 		enabled: true,
+	},
+	user: {
+		additionalFields: additionalUserFields,
 	},
 	trustedOrigins: [
 		"http://localhost:5173",
