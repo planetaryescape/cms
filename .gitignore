@@ -43,3 +43,4 @@ bun.lockb
 .turbo
 server/tsconfig.tsbuildinfo
 shared/tsconfig.tsbuildinfo
+*.tsbuildinfo
