@@ -7,15 +7,11 @@ COPY turbo.json ./
 COPY biome.json ./
 COPY tsconfig.json ./
 
-COPY client/package.json ./client/
-COPY server/package.json ./server/
-COPY shared/package.json ./shared/
-
-RUN bun install
-
 COPY client ./client
 COPY server ./server
 COPY shared ./shared
+
+RUN bun install
 
 RUN bun run build:single
 
