@@ -42,3 +42,4 @@ pnpm-debug.log*
 bun.lockb
 .turbo
 server/tsconfig.tsbuildinfo
+shared/tsconfig.tsbuildinfo

@@ -199,41 +199,91 @@ bun install
 ### Development
 
 ```bash
-# Run all workspaces in development mode with Turbo
-bun run dev
+# Start Postgres + dev servers with HMR (recommended)
+make dev
 
-# Or run individual workspaces directly
-bun run dev:client    # Run the Vite dev server for React
-bun run dev:server    # Run the Hono backend
+# Or step by step:
+make dev-db           # Start Postgres in Docker
+bun run dev           # Run dev servers
+
+# Run individual workspaces
+bun run dev:client    # Vite dev server (port 5173)
+bun run dev:server    # Hono backend (port 3000)
+
+# Stop Docker containers
+make stop
 ```
 
 ### Building
 
 ```bash
-# Build all workspaces with Turbo
-bun run build
+# Build all workspaces
+make build
 
-# Or build individual workspaces directly
-bun run build:client  # Build the React frontend
-bun run build:server  # Build the Hono backend
+# Build for single-origin deployment
+make build-single
+```
+
+### Database Migrations
+
+The project uses Kysely for database migrations alongside Better Auth's built-in migrations.
+
+```bash
+# Run all migrations (Better Auth + Kysely)
+make migrate
+
+# Rollback last Kysely migration
+make migrate-down
+
+# Show migration status
+make migrate-status
+```
+
+To create a new Kysely migration, add a file to `server/src/db/migrations/` following the naming convention `YYYY-MM-DD_description.ts`:
+
+```typescript
+import { Kysely } from "kysely";
+
+export async function up(db: Kysely<unknown>): Promise<void> {
+  await db.schema
+    .createTable("example")
+    .addColumn("id", "serial", (col) => col.primaryKey())
+    .addColumn("name", "varchar(255)", (col) => col.notNull())
+    .execute();
+}
+
+export async function down(db: Kysely<unknown>): Promise<void> {
+  await db.schema.dropTable("example").execute();
+}
 ```
 
 ### Additional Commands
 
 ```bash
-# Lint all workspaces
-bun run lint
-
-# Type check all workspaces
-bun run type-check
-
-# Run tests across all workspaces
-bun run test
+make lint             # Lint all workspaces
+make type-check       # Type check all workspaces
+make test             # Run tests
+make format           # Format code
+make clean            # Remove build artifacts and Docker volumes
+make help             # Show all available commands
 ```
 
 ### Deployment
 
-Deplying each piece is very versatile and can be done numerous ways, and exploration into automating these will happen at a later date. Here are some references in the meantime.
+#### Docker (Single Origin)
+
+The project supports single-origin deployment where both API and frontend are served from port 3000:
+
+```bash
+# Run full production stack (Postgres + app)
+make production
+
+# Or build and run manually
+make build-single
+make start-single
+```
+
+#### Other Options
 
 **Client**
 - [Orbiter](https://orbiter.host)
