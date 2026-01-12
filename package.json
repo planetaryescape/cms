@@ -22,7 +22,7 @@
 		"copy:static": "rm -rf server/static && cp -r client/dist server/static",
 		"start:single": "bun run server/dist/index.js",
 		"lint": "biome lint .",
-		"type-check": "turbo type-check",
+		"typecheck": "turbo typecheck",
 		"test": "turbo test",
 		"postinstall": "turbo build --filter=shared --filter=server",
 		"prepare": "effect-language-service patch",
