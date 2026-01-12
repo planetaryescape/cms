@@ -1,6 +1,11 @@
 import { Effect } from "effect";
 import { Hono } from "hono";
-import type { ContentInsert, ContentUpdate } from "shared";
+import type {
+	ContentInsert,
+	ContentUpdate,
+	ContentStatus,
+	ContentType,
+} from "shared";
 import { AppRuntime } from "../lib/runtime";
 import { ContentService } from "../services/ContentService";
 
@@ -20,8 +25,8 @@ app.get("/", async (c) => {
 		const service = yield* ContentService;
 		return yield* service.list({
 			...(authorId ? { authorId } : {}),
-			...(status ? { status } : {}),
-			...(contentType ? { contentType } : {}),
+			...(status ? { status: status as ContentStatus } : {}),
+			...(contentType ? { contentType: contentType as ContentType } : {}),
 			...(search ? { search } : {}),
 			...(limit ? { limit } : {}),
 			...(offset ? { offset } : {}),

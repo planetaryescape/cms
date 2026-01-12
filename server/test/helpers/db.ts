@@ -21,7 +21,16 @@ export async function seedDatabase(db: Kysely<Database>) {
 	const content = (await import("../fixtures/content.json")).default;
 	const tags = (await import("../fixtures/tags.json")).default;
 
-	await db.insertInto("user").values(users as any).execute();
-	await db.insertInto("tag").values(tags as any).execute();
-	await db.insertInto("content").values(content as any).execute();
+	await db
+		.insertInto("user")
+		.values(users as any)
+		.execute();
+	await db
+		.insertInto("tag")
+		.values(tags as any)
+		.execute();
+	await db
+		.insertInto("content")
+		.values(content as any)
+		.execute();
 }

@@ -1,6 +1,9 @@
 import { Context, Effect, Layer } from "effect";
-import type { User, UserUpdate } from "shared";
+import type { Selectable } from "kysely";
+import type { Database as DatabaseSchema, UserRole, UserUpdate } from "shared";
 import { Database } from "./Database";
+
+type User = Selectable<DatabaseSchema["user"]>;
 
 export class UserService extends Context.Tag("UserService")<
 	UserService,
@@ -16,7 +19,7 @@ export class UserService extends Context.Tag("UserService")<
 		readonly list: (params: {
 			limit?: number;
 			offset?: number;
-			role?: string;
+			role?: UserRole;
 		}) => Effect.Effect<User[], Error>;
 	}
 >() {}
@@ -30,11 +33,11 @@ export const UserServiceLive = Layer.effect(
 			getById: (id: string) =>
 				Effect.tryPromise({
 					try: async () => {
-						return (await db
+						return await db
 							.selectFrom("user")
 							.selectAll()
 							.where("id", "=", id)
-							.executeTakeFirst()) as any as User | undefined;
+							.executeTakeFirst();
 					},
 					catch: (e) => new Error(`Failed to get user by id: ${e}`),
 				}),
@@ -42,11 +45,11 @@ export const UserServiceLive = Layer.effect(
 			getByEmail: (email: string) =>
 				Effect.tryPromise({
 					try: async () => {
-						return (await db
+						return await db
 							.selectFrom("user")
 							.selectAll()
 							.where("email", "=", email)
-							.executeTakeFirst()) as any as User | undefined;
+							.executeTakeFirst();
 					},
 					catch: (e) => new Error(`Failed to get user by email: ${e}`),
 				}),
@@ -54,11 +57,15 @@ export const UserServiceLive = Layer.effect(
 			update: (id: string, input: UserUpdate) =>
 				Effect.tryPromise({
 					try: async () => {
-						const updateData: any = { ...input };
-						if (input.preferences) {
+						const updateData: Record<string, unknown> = {
+							...input,
+							updatedAt: new Date(),
+						};
+
+						// Handle preferences JSON field
+						if (input.preferences !== undefined) {
 							updateData.preferences = JSON.stringify(input.preferences);
 						}
-						updateData.updatedAt = new Date();
 
 						const user = await db
 							.updateTable("user")
@@ -66,26 +73,26 @@ export const UserServiceLive = Layer.effect(
 							.where("id", "=", id)
 							.returningAll()
 							.executeTakeFirstOrThrow();
-						return user as any as User;
+						return user;
 					},
 					catch: (e) => new Error(`Failed to update user: ${e}`),
 				}),
 
-			list: (params: { limit?: number; offset?: number; role?: string }) =>
+			list: (params: { limit?: number; offset?: number; role?: UserRole }) =>
 				Effect.tryPromise({
 					try: async () => {
 						let query = db.selectFrom("user");
 
 						if (params.role) {
-							query = query.where("role", "=", params.role as any);
+							query = query.where("role", "=", params.role);
 						}
 
-						return (await query
+						return await query
 							.selectAll()
 							.limit(params.limit ?? 50)
 							.offset(params.offset ?? 0)
 							.orderBy("createdAt", "desc")
-							.execute()) as any as User[];
+							.execute();
 					},
 					catch: (e) => new Error(`Failed to list users: ${e}`),
 				}),

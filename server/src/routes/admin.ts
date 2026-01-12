@@ -1,5 +1,6 @@
 import { Effect } from "effect";
 import { Hono } from "hono";
+import type { ContentStatus, UserRole } from "shared";
 import type { auth } from "../lib/auth";
 import { AppRuntime } from "../lib/runtime";
 import { ContentService } from "../services/ContentService";
@@ -46,7 +47,7 @@ app.get("/users", async (c) => {
 	const program = Effect.gen(function* () {
 		const service = yield* UserService;
 		return yield* service.list({
-			...(role ? { role } : {}),
+			...(role ? { role: role as UserRole } : {}),
 			...(limit ? { limit } : {}),
 			...(offset ? { offset } : {}),
 		});
@@ -62,7 +63,7 @@ app.patch("/content/:id/status", async (c) => {
 
 	const program = Effect.gen(function* () {
 		const service = yield* ContentService;
-		return yield* service.update(id, { status: status as any });
+		return yield* service.update(id, { status: status as ContentStatus });
 	});
 
 	const result = await AppRuntime.runPromise(program);

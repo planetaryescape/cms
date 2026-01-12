@@ -3,15 +3,12 @@ import type { NewContent, NewMedia, NewTag, NewUser } from "shared";
 export const userFactory = {
 	build(overrides?: Partial<NewUser>): NewUser {
 		return {
-			id: crypto.randomUUID(),
 			email: `test-${Date.now()}-${Math.random().toString(36).substring(7)}@example.com`,
-			emailVerified: false,
+			passwordHash: "hashedpassword",
 			name: "Test User",
-			image: null,
 			role: "writer",
-			bio: null,
 			isActive: true,
-			preferences: {},
+			preferences: "{}",
 			...overrides,
 		} as NewUser;
 	},
@@ -37,12 +34,7 @@ export const contentFactory = {
 			id: crypto.randomUUID(),
 			slug: `test-content-${timestamp}-${random}`,
 			title: "Test Content",
-			blocks: [
-				{
-					type: "paragraph",
-					content: [{ type: "text", text: "Test content body" }],
-				},
-			] as any,
+			blocks: "[]",
 			contentType: "article",
 			status: "draft",
 			excerpt: null,
@@ -60,7 +52,10 @@ export const contentFactory = {
 		} as NewContent;
 	},
 
-	buildPublished(authorId: string, overrides?: Partial<NewContent>): NewContent {
+	buildPublished(
+		authorId: string,
+		overrides?: Partial<NewContent>,
+	): NewContent {
 		return this.build({
 			authorId,
 			status: "published",
@@ -99,7 +94,7 @@ export const tagFactory = {
 			color: "#3B82F6",
 			usageCount: 0,
 			...overrides,
-		} as NewTag;
+		};
 	},
 
 	buildMany(count: number, overrides?: Partial<NewTag>): NewTag[] {
@@ -130,7 +125,7 @@ export const mediaFactory = {
 			uploadedBy,
 			deletedAt: null,
 			...overrides,
-		} as NewMedia;
+		};
 	},
 
 	buildMany(

@@ -1,20 +1,31 @@
 import { Context, Effect, Layer } from "effect";
+import type { Selectable } from "kysely";
 import { sql } from "kysely";
-import type { Content, ContentInsert, ContentUpdate } from "shared";
+import type {
+	ContentInsert,
+	ContentStatus,
+	ContentType,
+	ContentUpdate,
+	Database as DatabaseSchema,
+} from "shared";
 import { Database } from "./Database";
+
+type Content = Selectable<DatabaseSchema["content"]>;
 
 export class ContentService extends Context.Tag("ContentService")<
 	ContentService,
 	{
 		readonly list: (params: {
 			authorId?: string;
-			status?: string;
-			contentType?: string;
+			status?: ContentStatus;
+			contentType?: ContentType;
 			search?: string;
 			limit?: number;
 			offset?: number;
 		}) => Effect.Effect<Content[], Error>;
-		readonly get: (idOrSlug: string) => Effect.Effect<Content | undefined, Error>;
+		readonly get: (
+			idOrSlug: string,
+		) => Effect.Effect<Content | undefined, Error>;
 		readonly create: (input: ContentInsert) => Effect.Effect<Content, Error>;
 		readonly update: (
 			id: string,
@@ -32,8 +43,8 @@ export const ContentServiceLive = Layer.effect(
 		return {
 			list: (params: {
 				authorId?: string;
-				status?: string;
-				contentType?: string;
+				status?: ContentStatus;
+				contentType?: ContentType;
 				search?: string;
 				limit?: number;
 				offset?: number;
@@ -46,17 +57,13 @@ export const ContentServiceLive = Layer.effect(
 							query = query.where("authorId", "=", params.authorId);
 						}
 						if (params.status) {
-							query = query.where("status", "=", params.status as any);
+							query = query.where("status", "=", params.status);
 						}
 						if (params.contentType) {
-							query = query.where(
-								"contentType",
-								"=",
-								params.contentType as any,
-							);
+							query = query.where("contentType", "=", params.contentType);
 						}
 						if (params.search) {
-							query = query.where((eb: any) =>
+							query = query.where((eb) =>
 								eb.or([
 									eb("title", "ilike", `%${params.search}%`),
 									eb("excerpt", "ilike", `%${params.search}%`),
@@ -64,12 +71,12 @@ export const ContentServiceLive = Layer.effect(
 							);
 						}
 
-						return (await query
+						return await query
 							.selectAll()
 							.limit(params.limit ?? 20)
 							.offset(params.offset ?? 0)
 							.orderBy("createdAt", "desc")
-							.execute()) as any as Content[];
+							.execute();
 					},
 					catch: (e) => new Error(`Failed to list content: ${e}`),
 				}),
@@ -89,7 +96,7 @@ export const ContentServiceLive = Layer.effect(
 							query = query.where("slug", "=", idOrSlug);
 						}
 
-						return (await query.executeTakeFirst()) as any as Content | undefined;
+						return await query.executeTakeFirst();
 					},
 					catch: (e) => new Error(`Failed to get content: ${e}`),
 				}),
@@ -102,12 +109,12 @@ export const ContentServiceLive = Layer.effect(
 							.values({
 								...input,
 								id: crypto.randomUUID(),
-								blocks: JSON.stringify(input.blocks) as any,
+								blocks: JSON.stringify(input.blocks),
 								status: input.status ?? "draft",
-							} as any)
+							})
 							.returningAll()
 							.executeTakeFirstOrThrow();
-						return content as any as Content;
+						return content;
 					},
 					catch: (e) => new Error(`Failed to create content: ${e}`),
 				}),
@@ -115,7 +122,7 @@ export const ContentServiceLive = Layer.effect(
 			update: (id: string, input: ContentUpdate) =>
 				Effect.tryPromise({
 					try: async () => {
-						const updateData: any = { ...input };
+						const updateData: Record<string, unknown> = { ...input };
 						if (input.blocks) {
 							updateData.blocks = JSON.stringify(input.blocks);
 						}
@@ -127,7 +134,7 @@ export const ContentServiceLive = Layer.effect(
 							.where("id", "=", id)
 							.returningAll()
 							.executeTakeFirstOrThrow();
-						return content as any as Content;
+						return content;
 					},
 					catch: (e) => new Error(`Failed to update content: ${e}`),
 				}),

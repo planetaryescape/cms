@@ -22,7 +22,7 @@ app.get("/me", async (c) => {
 
 	const program = Effect.gen(function* () {
 		const service = yield* UserService;
-		return yield* service.getById((user as any).id);
+		return yield* service.getById(user.id);
 	});
 
 	const result = await AppRuntime.runPromise(program);
@@ -36,7 +36,7 @@ app.patch("/me", async (c) => {
 	const body = await c.req.json<UserUpdate>();
 	const program = Effect.gen(function* () {
 		const service = yield* UserService;
-		return yield* service.update((user as any).id, body);
+		return yield* service.update(user.id, body);
 	});
 
 	const result = await AppRuntime.runPromise(program);
