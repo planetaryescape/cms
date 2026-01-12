@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useSession, signOut } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 
@@ -73,6 +73,11 @@ function DashboardPage() {
 									<span className="font-medium">User ID:</span>{" "}
 									{session.user?.id}
 								</div>
+								<Link to="/profile">
+									<Button variant="outline" size="sm" className="mt-2">
+										Edit Extended Profile
+									</Button>
+								</Link>
 							</div>
 						</div>
 

@@ -26,3 +26,24 @@ export async function testConnection() {
 		};
 	}
 }
+
+export async function updateUserProfile(
+	userId: string,
+	updates: {
+		bio?: string | null;
+		preferences?: Record<string, unknown> | null;
+	},
+) {
+	const result = await db
+		.updateTable("user")
+		.set({
+			bio: updates.bio ?? sql`"bio"`,
+			preferences: updates.preferences
+				? JSON.stringify(updates.preferences)
+				: sql`"preferences"`,
+		})
+		.where("id", "=", userId)
+		.execute();
+
+	return result.length > 0;
+}

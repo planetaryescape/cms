@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { serveStatic } from "hono/bun";
 import { cors } from "hono/cors";
 import type { ApiResponse } from "shared";
-import { testConnection } from "./db";
+import { testConnection, updateUserProfile } from "./db";
 import { auth } from "./lib/auth";
 
 // API routes only (for RPC client type inference)
@@ -58,6 +58,47 @@ export const apiRoutes = new Hono<{
 			session,
 			user,
 		});
+	})
+	.patch("/user/profile", async (c) => {
+		const user = c.get("user");
+
+		if (!user) {
+			return c.json({ error: "Unauthorized" }, 401);
+		}
+
+		const body = await c.req.json();
+
+		if (!body || typeof body !== "object") {
+			return c.json({ error: "Invalid request body" }, 400);
+		}
+
+		const updates: {
+			bio?: string | null;
+			preferences?: Record<string, unknown> | null;
+		} = {};
+
+		if ("bio" in body) {
+			updates.bio = body.bio === "" ? null : body.bio;
+		}
+
+		if ("preferences" in body && body.preferences !== undefined) {
+			if (body.preferences === null) {
+				updates.preferences = null;
+			}
+			if (typeof body.preferences === "object") {
+				updates.preferences = body.preferences as Record<string, unknown>;
+			} else {
+				return c.json({ error: "preferences must be an object or null" }, 400);
+			}
+		}
+
+		const success = await updateUserProfile(user.id, updates);
+
+		if (!success) {
+			return c.json({ error: "Failed to update profile" }, 500);
+		}
+
+		return c.json({ success: true, message: "Profile updated" });
 	});
 
 // Full app with static serving
