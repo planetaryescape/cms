@@ -1,0 +1,21 @@
+[
+	{
+		"id": "880e8400-e29b-41d4-a716-446655440000",
+		"filename": "test-image-1.jpg",
+		"originalFilename": "test-image.jpg",
+		"mimeType": "image/jpeg",
+		"storageProvider": "local",
+		"storageKey": "/uploads/test-image-1.jpg",
+		"storageUrl": "http://localhost:3000/uploads/test-image-1.jpg",
+		"sizeBytes": 102400,
+		"width": 1920,
+		"height": 1080,
+		"durationSeconds": null,
+		"blurhash": null,
+		"dominantColor": "#3B82F6",
+		"altText": "Test image",
+		"caption": null,
+		"uploadedBy": "550e8400-e29b-41d4-a716-446655440000",
+		"deletedAt": null
+	}
+]

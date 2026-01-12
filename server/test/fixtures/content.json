@@ -1,0 +1,31 @@
+[
+	{
+		"id": "770e8400-e29b-41d4-a716-446655440000",
+		"slug": "test-article-1",
+		"title": "Test Article 1",
+		"blocks": [
+			{
+				"type": "paragraph",
+				"content": [
+					{
+						"type": "text",
+						"text": "This is a test article"
+					}
+				]
+			}
+		],
+		"contentType": "article",
+		"status": "published",
+		"excerpt": "Test excerpt",
+		"metaTitle": null,
+		"metaDescription": null,
+		"ogImage": null,
+		"authorId": "550e8400-e29b-41d4-a716-446655440002",
+		"publishedAt": "2024-01-01T00:00:00.000Z",
+		"scheduledFor": null,
+		"viewCount": 0,
+		"readingTimeMinutes": 1,
+		"wordCount": 50,
+		"deletedAt": null
+	}
+]
