@@ -4,6 +4,11 @@ import { cors } from "hono/cors";
 import type { ApiResponse } from "shared";
 import { testConnection, updateUserProfile } from "./db";
 import { auth } from "./lib/auth";
+import adminRoutes from "./routes/admin";
+import contentRoutes from "./routes/content";
+import mediaRoutes from "./routes/media";
+import tagRoutes from "./routes/tags";
+import userRoutes from "./routes/users";
 
 // API routes only (for RPC client type inference)
 export const apiRoutes = new Hono<{
@@ -31,6 +36,17 @@ export const apiRoutes = new Hono<{
 		await next();
 	})
 	.use(cors())
+	.route("/content", contentRoutes)
+	.route("/users", userRoutes)
+	.route("/admin", adminRoutes)
+	.route("/content", contentRoutes)
+	.route("/users", userRoutes)
+	.route("/admin", adminRoutes)
+	.route("/tags", tagRoutes)
+	.route("/media", mediaRoutes)
+	.route("/content", contentRoutes)
+	.route("/users", userRoutes)
+	.route("/admin", adminRoutes)
 	.get("/", (c) => {
 		return c.text("Hello Hono!");
 	})

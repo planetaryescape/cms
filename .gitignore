@@ -45,3 +45,4 @@ server/tsconfig.tsbuildinfo
 shared/tsconfig.tsbuildinfo
 *.tsbuildinfo
 TODO.md
+reference
