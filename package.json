@@ -46,6 +46,7 @@
 		"typescript": "^5.9.3"
 	},
 	"dependencies": {
+		"highlight.js": "^11.11.1",
 		"hono": "^4.11.3"
 	}
 }

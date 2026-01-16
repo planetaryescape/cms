@@ -13,7 +13,11 @@ import { Route as SignupRouteImport } from './routes/signup'
 import { Route as SigninRouteImport } from './routes/signin'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as CmsRouteImport } from './routes/cms'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CmsContentIndexRouteImport } from './routes/cms/content/index'
+import { Route as CmsContentNewRouteImport } from './routes/cms/content/new'
+import { Route as CmsContentContentIdIndexRouteImport } from './routes/cms/content/$contentId/index'
 
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
@@ -35,44 +39,106 @@ const DashboardRoute = DashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CmsRoute = CmsRouteImport.update({
+  id: '/cms',
+  path: '/cms',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CmsContentIndexRoute = CmsContentIndexRouteImport.update({
+  id: '/content/',
+  path: '/content/',
+  getParentRoute: () => CmsRoute,
+} as any)
+const CmsContentNewRoute = CmsContentNewRouteImport.update({
+  id: '/content/new',
+  path: '/content/new',
+  getParentRoute: () => CmsRoute,
+} as any)
+const CmsContentContentIdIndexRoute =
+  CmsContentContentIdIndexRouteImport.update({
+    id: '/content/$contentId/',
+    path: '/content/$contentId/',
+    getParentRoute: () => CmsRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/cms': typeof CmsRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/profile': typeof ProfileRoute
   '/signin': typeof SigninRoute
   '/signup': typeof SignupRoute
+  '/cms/content/new': typeof CmsContentNewRoute
+  '/cms/content': typeof CmsContentIndexRoute
+  '/cms/content/$contentId': typeof CmsContentContentIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/cms': typeof CmsRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/profile': typeof ProfileRoute
   '/signin': typeof SigninRoute
   '/signup': typeof SignupRoute
+  '/cms/content/new': typeof CmsContentNewRoute
+  '/cms/content': typeof CmsContentIndexRoute
+  '/cms/content/$contentId': typeof CmsContentContentIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/cms': typeof CmsRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/profile': typeof ProfileRoute
   '/signin': typeof SigninRoute
   '/signup': typeof SignupRoute
+  '/cms/content/new': typeof CmsContentNewRoute
+  '/cms/content/': typeof CmsContentIndexRoute
+  '/cms/content/$contentId/': typeof CmsContentContentIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/dashboard' | '/profile' | '/signin' | '/signup'
+  fullPaths:
+    | '/'
+    | '/cms'
+    | '/dashboard'
+    | '/profile'
+    | '/signin'
+    | '/signup'
+    | '/cms/content/new'
+    | '/cms/content'
+    | '/cms/content/$contentId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dashboard' | '/profile' | '/signin' | '/signup'
-  id: '__root__' | '/' | '/dashboard' | '/profile' | '/signin' | '/signup'
+  to:
+    | '/'
+    | '/cms'
+    | '/dashboard'
+    | '/profile'
+    | '/signin'
+    | '/signup'
+    | '/cms/content/new'
+    | '/cms/content'
+    | '/cms/content/$contentId'
+  id:
+    | '__root__'
+    | '/'
+    | '/cms'
+    | '/dashboard'
+    | '/profile'
+    | '/signin'
+    | '/signup'
+    | '/cms/content/new'
+    | '/cms/content/'
+    | '/cms/content/$contentId/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CmsRoute: typeof CmsRouteWithChildren
   DashboardRoute: typeof DashboardRoute
   ProfileRoute: typeof ProfileRoute
   SigninRoute: typeof SigninRoute
@@ -109,6 +175,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/cms': {
+      id: '/cms'
+      path: '/cms'
+      fullPath: '/cms'
+      preLoaderRoute: typeof CmsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -116,11 +189,47 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/cms/content/': {
+      id: '/cms/content/'
+      path: '/content'
+      fullPath: '/cms/content'
+      preLoaderRoute: typeof CmsContentIndexRouteImport
+      parentRoute: typeof CmsRoute
+    }
+    '/cms/content/new': {
+      id: '/cms/content/new'
+      path: '/content/new'
+      fullPath: '/cms/content/new'
+      preLoaderRoute: typeof CmsContentNewRouteImport
+      parentRoute: typeof CmsRoute
+    }
+    '/cms/content/$contentId/': {
+      id: '/cms/content/$contentId/'
+      path: '/content/$contentId'
+      fullPath: '/cms/content/$contentId'
+      preLoaderRoute: typeof CmsContentContentIdIndexRouteImport
+      parentRoute: typeof CmsRoute
+    }
   }
 }
 
+interface CmsRouteChildren {
+  CmsContentNewRoute: typeof CmsContentNewRoute
+  CmsContentIndexRoute: typeof CmsContentIndexRoute
+  CmsContentContentIdIndexRoute: typeof CmsContentContentIdIndexRoute
+}
+
+const CmsRouteChildren: CmsRouteChildren = {
+  CmsContentNewRoute: CmsContentNewRoute,
+  CmsContentIndexRoute: CmsContentIndexRoute,
+  CmsContentContentIdIndexRoute: CmsContentContentIdIndexRoute,
+}
+
+const CmsRouteWithChildren = CmsRoute._addFileChildren(CmsRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CmsRoute: CmsRouteWithChildren,
   DashboardRoute: DashboardRoute,
   ProfileRoute: ProfileRoute,
   SigninRoute: SigninRoute,

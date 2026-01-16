@@ -62,6 +62,58 @@ export const apiRoutes = new Hono<{
 		const result = await testConnection();
 		return c.json(result, { status: result.success ? 200 : 500 });
 	})
+	.get("/healthz", (c) => {
+		return c.json({
+			status: "ok",
+			timestamp: new Date().toISOString(),
+			uptime: process.uptime(),
+		});
+	})
+	.get("/readyz", async (c) => {
+		const startTime = Date.now();
+		try {
+			const dbResult = (await Promise.race([
+				testConnection(),
+				new Promise<never>((_, reject) =>
+					setTimeout(() => reject(new Error("Database check timeout")), 5000),
+				),
+			])) as Awaited<ReturnType<typeof testConnection>>;
+
+			const responseTime = Date.now() - startTime;
+			const isHealthy = dbResult.success;
+
+			const response = {
+				status: isHealthy ? "ok" : "error",
+				timestamp: new Date().toISOString(),
+				checks: {
+					database: {
+						status: dbResult.success ? "ok" : "error",
+						responseTime,
+						message: dbResult.message,
+						...(dbResult.error && { error: dbResult.error }),
+					},
+				},
+			};
+
+			return c.json(response, { status: isHealthy ? 200 : 503 });
+		} catch (error) {
+			const responseTime = Date.now() - startTime;
+			const response = {
+				status: "error",
+				timestamp: new Date().toISOString(),
+				checks: {
+					database: {
+						status: "error",
+						responseTime,
+						message: "Database check failed",
+						error: error instanceof Error ? error.message : String(error),
+					},
+				},
+			};
+
+			return c.json(response, { status: 503 });
+		}
+	})
 	.get("/session", (c) => {
 		const session = c.get("session");
 		const user = c.get("user");
@@ -119,7 +171,9 @@ export const apiRoutes = new Hono<{
 
 // Full app with static serving
 export const app = new Hono()
-	.on(["POST", "GET"], "/api/auth/**", (c) => auth.handler(c.req.raw))
+	.on(["POST", "GET"], "/api/auth/*", (c) => {
+		return auth.handler(c.req.raw);
+	})
 	.route("/api", apiRoutes)
 	.use("*", serveStatic({ root: "./static" }))
 	.get("*", serveStatic({ path: "./static/index.html" }));
