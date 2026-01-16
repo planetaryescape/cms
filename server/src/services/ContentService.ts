@@ -9,6 +9,7 @@ import type {
 	Database as DatabaseSchema,
 } from "shared";
 import { Database } from "./Database";
+import { DatabaseError } from "../lib/errors";
 
 type Content = Selectable<DatabaseSchema["content"]>;
 
@@ -22,16 +23,18 @@ export class ContentService extends Context.Tag("ContentService")<
 			search?: string;
 			limit?: number;
 			offset?: number;
-		}) => Effect.Effect<Content[], Error>;
+		}) => Effect.Effect<Content[], DatabaseError>;
 		readonly get: (
 			idOrSlug: string,
-		) => Effect.Effect<Content | undefined, Error>;
-		readonly create: (input: ContentInsert) => Effect.Effect<Content, Error>;
+		) => Effect.Effect<Content | undefined, DatabaseError>;
+		readonly create: (
+			input: ContentInsert,
+		) => Effect.Effect<Content, DatabaseError>;
 		readonly update: (
 			id: string,
 			input: ContentUpdate,
-		) => Effect.Effect<Content, Error>;
-		readonly delete: (id: string) => Effect.Effect<void, Error>;
+		) => Effect.Effect<Content, DatabaseError>;
+		readonly delete: (id: string) => Effect.Effect<void, DatabaseError>;
 	}
 >() {}
 
@@ -78,7 +81,8 @@ export const ContentServiceLive = Layer.effect(
 							.orderBy("createdAt", "desc")
 							.execute();
 					},
-					catch: (e) => new Error(`Failed to list content: ${e}`),
+					catch: (e) =>
+						new DatabaseError({ message: `Failed to list content: ${e}` }),
 				}),
 
 			get: (idOrSlug: string) =>
@@ -98,7 +102,8 @@ export const ContentServiceLive = Layer.effect(
 
 						return await query.executeTakeFirst();
 					},
-					catch: (e) => new Error(`Failed to get content: ${e}`),
+					catch: (e) =>
+						new DatabaseError({ message: `Failed to get content: ${e}` }),
 				}),
 
 			create: (input: ContentInsert) =>
@@ -116,7 +121,8 @@ export const ContentServiceLive = Layer.effect(
 							.executeTakeFirstOrThrow();
 						return content;
 					},
-					catch: (e) => new Error(`Failed to create content: ${e}`),
+					catch: (e) =>
+						new DatabaseError({ message: `Failed to create content: ${e}` }),
 				}),
 
 			update: (id: string, input: ContentUpdate) =>
@@ -136,7 +142,8 @@ export const ContentServiceLive = Layer.effect(
 							.executeTakeFirstOrThrow();
 						return content;
 					},
-					catch: (e) => new Error(`Failed to update content: ${e}`),
+					catch: (e) =>
+						new DatabaseError({ message: `Failed to update content: ${e}` }),
 				}),
 
 			delete: (id: string) =>
@@ -148,7 +155,8 @@ export const ContentServiceLive = Layer.effect(
 							.where("id", "=", id)
 							.execute();
 					},
-					catch: (e) => new Error(`Failed to delete content: ${e}`),
+					catch: (e) =>
+						new DatabaseError({ message: `Failed to delete content: ${e}` }),
 				}),
 		};
 	}),

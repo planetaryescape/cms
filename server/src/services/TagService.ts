@@ -2,17 +2,18 @@ import { Context, Effect, Layer } from "effect";
 import type { Selectable } from "kysely";
 import type { Database as DatabaseSchema } from "shared";
 import { Database } from "./Database";
+import { DatabaseError } from "../lib/errors";
 
 type Tag = Selectable<DatabaseSchema["tag"]>;
 
 export class TagService extends Context.Tag("TagService")<
 	TagService,
 	{
-		readonly list: () => Effect.Effect<Tag[], Error>;
+		readonly list: () => Effect.Effect<Tag[], DatabaseError>;
 		readonly create: (input: {
 			name: string;
 			slug: string;
-		}) => Effect.Effect<Tag, Error>;
+		}) => Effect.Effect<Tag, DatabaseError>;
 	}
 >() {}
 
@@ -27,7 +28,8 @@ export const TagServiceLive = Layer.effect(
 					try: async () => {
 						return await db.selectFrom("tag").selectAll().execute();
 					},
-					catch: (e) => new Error(`Failed to list tags: ${e}`),
+					catch: (e) =>
+						new DatabaseError({ message: `Failed to list tags: ${e}` }),
 				}),
 			create: (input) =>
 				Effect.tryPromise({
@@ -41,7 +43,8 @@ export const TagServiceLive = Layer.effect(
 							.returningAll()
 							.executeTakeFirstOrThrow();
 					},
-					catch: (e) => new Error(`Failed to create tag: ${e}`),
+					catch: (e) =>
+						new DatabaseError({ message: `Failed to create tag: ${e}` }),
 				}),
 		};
 	}),

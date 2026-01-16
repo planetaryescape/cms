@@ -1,5 +1,6 @@
 import { Context, Effect, Layer } from "effect";
 import { Database } from "./Database";
+import { DatabaseError } from "../lib/errors";
 
 export class StatsService extends Context.Tag("StatsService")<
 	StatsService,
@@ -10,7 +11,7 @@ export class StatsService extends Context.Tag("StatsService")<
 				contentCount: number;
 				mediaCount: number;
 			},
-			Error
+			DatabaseError
 		>;
 	}
 >() {}
@@ -25,9 +26,18 @@ export const StatsServiceLive = Layer.effect(
 				Effect.tryPromise({
 					try: async () => {
 						const [users, content, media] = await Promise.all([
-							db.selectFrom("user").select(db.fn.count("id").as("count")).executeTakeFirst(),
-							db.selectFrom("content").select(db.fn.count("id").as("count")).executeTakeFirst(),
-							db.selectFrom("media").select(db.fn.count("id").as("count")).executeTakeFirst(),
+							db
+								.selectFrom("user")
+								.select(db.fn.count("id").as("count"))
+								.executeTakeFirst(),
+							db
+								.selectFrom("content")
+								.select(db.fn.count("id").as("count"))
+								.executeTakeFirst(),
+							db
+								.selectFrom("media")
+								.select(db.fn.count("id").as("count"))
+								.executeTakeFirst(),
 						]);
 
 						return {
@@ -36,7 +46,8 @@ export const StatsServiceLive = Layer.effect(
 							mediaCount: Number(media?.count ?? 0),
 						};
 					},
-					catch: (e) => new Error(`Failed to get stats: ${e}`),
+					catch: (e) =>
+						new DatabaseError({ message: `Failed to get stats: ${e}` }),
 				}),
 		};
 	}),

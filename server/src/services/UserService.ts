@@ -2,25 +2,28 @@ import { Context, Effect, Layer } from "effect";
 import type { Selectable } from "kysely";
 import type { Database as DatabaseSchema, UserRole, UserUpdate } from "shared";
 import { Database } from "./Database";
+import { DatabaseError, NotFoundError } from "../lib/errors";
 
 type User = Selectable<DatabaseSchema["user"]>;
 
 export class UserService extends Context.Tag("UserService")<
 	UserService,
 	{
-		readonly getById: (id: string) => Effect.Effect<User | undefined, Error>;
+		readonly getById: (
+			id: string,
+		) => Effect.Effect<User | undefined, DatabaseError>;
 		readonly getByEmail: (
 			email: string,
-		) => Effect.Effect<User | undefined, Error>;
+		) => Effect.Effect<User | undefined, DatabaseError>;
 		readonly update: (
 			id: string,
 			input: UserUpdate,
-		) => Effect.Effect<User, Error>;
+		) => Effect.Effect<User, DatabaseError>;
 		readonly list: (params: {
 			limit?: number;
 			offset?: number;
 			role?: UserRole;
-		}) => Effect.Effect<User[], Error>;
+		}) => Effect.Effect<User[], DatabaseError>;
 	}
 >() {}
 
@@ -39,7 +42,8 @@ export const UserServiceLive = Layer.effect(
 							.where("id", "=", id)
 							.executeTakeFirst();
 					},
-					catch: (e) => new Error(`Failed to get user by id: ${e}`),
+					catch: (e) =>
+						new DatabaseError({ message: `Failed to get user by id: ${e}` }),
 				}),
 
 			getByEmail: (email: string) =>
@@ -51,7 +55,8 @@ export const UserServiceLive = Layer.effect(
 							.where("email", "=", email)
 							.executeTakeFirst();
 					},
-					catch: (e) => new Error(`Failed to get user by email: ${e}`),
+					catch: (e) =>
+						new DatabaseError({ message: `Failed to get user by email: ${e}` }),
 				}),
 
 			update: (id: string, input: UserUpdate) =>
@@ -75,7 +80,8 @@ export const UserServiceLive = Layer.effect(
 							.executeTakeFirstOrThrow();
 						return user;
 					},
-					catch: (e) => new Error(`Failed to update user: ${e}`),
+					catch: (e) =>
+						new DatabaseError({ message: `Failed to update user: ${e}` }),
 				}),
 
 			list: (params: { limit?: number; offset?: number; role?: UserRole }) =>
@@ -94,7 +100,8 @@ export const UserServiceLive = Layer.effect(
 							.orderBy("createdAt", "desc")
 							.execute();
 					},
-					catch: (e) => new Error(`Failed to list users: ${e}`),
+					catch: (e) =>
+						new DatabaseError({ message: `Failed to list users: ${e}` }),
 				}),
 		};
 	}),

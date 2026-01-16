@@ -7,7 +7,6 @@ import { TagServiceLive } from "../services/TagService";
 import { UserServiceLive } from "../services/UserService";
 
 export const AppLayer = Layer.mergeAll(
-	DatabaseLive,
 	ContentServiceLive,
 	UserServiceLive,
 	StatsServiceLive,
